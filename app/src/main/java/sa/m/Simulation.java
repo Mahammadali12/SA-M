@@ -54,12 +54,12 @@ public class Simulation {
                     if(serverIsAvailable){
                         work = random.nextInt(50);
                         H = T + work;
-                        printTable("L1",work);
+                        printTable("L1 process",work);
                         serverIsAvailable = false;
                         continue;
                     }else{
                         Q.add(L1);
-                        printTable("L1",0);
+                        printTable("L1 queued",0);
                         continue;
                     }
                 }
@@ -70,37 +70,38 @@ public class Simulation {
                     if(serverIsAvailable){
                         work = random.nextInt(50);
                         H = T + work;
-                        printTable("L2",work);
+                        printTable("L2 process",work);
                         serverIsAvailable = false;
                         continue;
                     }else{
                         Q.add(L2);
-                        printTable("L2",0);
+                        printTable("L2 queued",0);
                         continue;
                     }
-                }else if (H < L2 && H < L1 && L1!=L2){
+                }else if (H < L2 && H < L1){
 
                     T = H;
                     serverIsAvailable = true;
-                    H = 501;
-
+                    // H = 501;
+                    System.out.println("DOMABAASSADSA");
                     if(Q.isEmpty()){
+                        System.out.println("POXA");
                         continue;
                     }else{
                         int temp = Q.pop();
-                        if(temp == L1){
+                        // if(temp == L1){
                             work = random.nextInt(50);
                             H = T + work;
-                            printTable("QUEUE L1",work);
+                            printTable("L1 Taken FROM QUEUE",work);
                             serverIsAvailable = false;
                             continue;
-                        }else if (temp == L2){
-                            work = random.nextInt(55);
-                            H = T + work;
-                            serverIsAvailable = false;
-                            printTable("QUEUE L2",work);
-                            continue;
-                        }
+                        // }else if (temp == L2){
+                        //     work = random.nextInt(55);
+                        //     H = T + work;
+                        //     serverIsAvailable = false;
+                        //     printTable("L2 Taken FROM QUEUE ",work);
+                        //     continue;
+                        // }
                     }
                 }else if (L2 < H && L1 < H && L1==L2 && H < 500){
                     System.out.println("dombal");
@@ -126,13 +127,13 @@ public class Simulation {
 
     public void printTable(String event, int work){
         if(event.contains("L1"))
-        System.out.printf("| Event- %s | Time - %d | | L1 - %d | | L2 - -- | | H - %d | | available - %b | | size - %d | | %s | -- %d\n",event,T,L1,H,serverIsAvailable,Q.size(),Q,work);
+        System.out.printf("| - %s | Time - %d | | L1 - %d | | L2 - -- | | H - %d | | available - %b | | size - %d | | %s | -- %d\n",event,T,L1,H,serverIsAvailable,Q.size(),Q,work);
         else if(event.contains("L2"))
-        System.out.printf("| Event- %s | Time - %d | | L1 - -- | | L2 - %d | | H - %d | | available - %b | | size - %d | | %s | -- %d\n",event,T,L2,H,serverIsAvailable,Q.size(),Q,work);
+        System.out.printf("| - %s | Time - %d | | L1 - -- | | L2 - %d | | H - %d | | available - %b | | size - %d | | %s | -- %d\n",event,T,L2,H,serverIsAvailable,Q.size(),Q,work);
         // System.out.printf("| %s | %d | | -- | | %d | | %d | | %b | | %d | | %s | -- %d\n",event,T,L2,H,serverIsAvailable,Q.size(),Q,work);
 
         else
-        System.out.printf("| Event- %s | Time - %d | | L1 - %d | | L2 - %d | | H - %d | | available - %b | | size - %d | | %s | -- %d\n",event,T,L1,L2,H,serverIsAvailable,Q.size(),Q,work);
+        System.out.printf("| - %s | Time - %d | | L1 - %d | | L2 - %d | | H - %d | | available - %b | | size - %d | | %s | -- %d\n",event,T,L1,L2,H,serverIsAvailable,Q.size(),Q,work);
         // System.out.printf("| %s | %d | | %d | | %d | | %d | | %b | | %d | | %s | -- %d\n",event,T,L1,L2,H,serverIsAvailable,Q.size(),Q,work);
 
     }

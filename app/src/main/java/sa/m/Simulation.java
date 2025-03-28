@@ -31,28 +31,29 @@ public class Simulation {
 
         int work = 0;
         
-        L1 = random.nextInt(50)+1;
-        L2 = random.nextInt(50)+1;
+        L1 = random.nextInt(90)+1;
+        L2 = random.nextInt(90)+1;
 
         H = 499;
-        System.out.println("---------------------------------------------------------------");
+        System.out.println("-------------------------------------------------------------------------------------------------------");
         System.out.println("| Event | Time | L1 | L2 | H | Server | Size | Queue| Process Time ");
-        System.out.println("---------------------------------------------------------------");
+        System.out.println("-------------------------------------------------------------------------------------------------------");
         printTable("Start",0);
         while (true) {
             // System.out.println("dombal");
-            System.out.println("---------------------------------------------------------------");
+            System.out.println("--------------------------------------------------------------------------------------------------");
+
             Thread.sleep(1000);
             if( T >= 500 ){
                 break;
             }else{
                 
-                if(L1 < L2 && L1 < H  && L1!=L2 && H < 500){
+                if(L1 < L2 && L1 < H){
                     T = L1;
-                    L1 = T + random.nextInt(50);
+                    L1 = T + random.nextInt(90);
 
                     if(serverIsAvailable){
-                        work = random.nextInt(50);
+                        work = random.nextInt(40);
                         H = T + work;
                         printTable("L1 process",work);
                         serverIsAvailable = false;
@@ -63,12 +64,12 @@ public class Simulation {
                         continue;
                     }
                 }
-                else if (L2 < L1 && L2 < H && L1!=L2 && H < 500) {
+                else if (L2 < L1 && L2 < H) {
                     T = L2;
-                    L2 = T + random.nextInt(50);
+                    L2 = T + random.nextInt(90);
 
                     if(serverIsAvailable){
-                        work = random.nextInt(50);
+                        work = random.nextInt(40);
                         H = T + work;
                         printTable("L2 process",work);
                         serverIsAvailable = false;
@@ -83,16 +84,46 @@ public class Simulation {
                     T = H;
                     serverIsAvailable = true;
                     // H = 501;
-                    System.out.println("DOMABAASSADSA");
+                    // System.out.println("DOMABAASSADSA");
                     if(Q.isEmpty()){
-                        System.out.println("POXA");
-                        continue;
+                        printTable("Empty QUEUE", 0);
+                        if (L2 < L1) {
+                            T = L2;
+                            L2 = T + random.nextInt(90);
+
+                            if(serverIsAvailable){
+                                work = random.nextInt(40);
+                                H = T + work;
+                                printTable("L2 process",work);
+                                serverIsAvailable = false;
+                                continue;
+                            }else{
+                                Q.add(L2);
+                                printTable("L2 queued",0);
+                                continue;
+                            }
+                        }else{
+                            T = L1;
+                            L1 = T + random.nextInt(90);
+        
+                            if(serverIsAvailable){
+                                work = random.nextInt(40);
+                                H = T + work;
+                                printTable("L1 process",work);
+                                serverIsAvailable = false;
+                                continue;
+                            }else{
+                                Q.add(L1);
+                                printTable("L1 queued",0);
+                                continue;
+                            }          
+                        }
                     }else{
                         int temp = Q.pop();
                         // if(temp == L1){
                             work = random.nextInt(50);
                             H = T + work;
-                            printTable("L1 Taken FROM QUEUE",work);
+                            printTable("Taken FROM QUEUE",work);
                             serverIsAvailable = false;
                             continue;
                         // }else if (temp == L2){
@@ -103,14 +134,15 @@ public class Simulation {
                         //     continue;
                         // }
                     }
-                }else if (L2 < H && L1 < H && L1==L2 && H < 500){
+                }else if (L2 < H && L1 < H && L1==L2){
+
                     System.out.println("dombal");
                     // Thread.sleep(1000);
                     T = L2;
-                    L2 = T + random.nextInt(50);
+                    L2 = T + random.nextInt(90);
 
                     if(serverIsAvailable){
-                        work = random.nextInt(50);
+                        work = random.nextInt(40);
                         H = T + work;
                         printTable("EQUAL L2",work);
                         serverIsAvailable = false;
@@ -120,6 +152,40 @@ public class Simulation {
                         printTable("EQUAL L2",0);
                         continue;
                     }                        
+                }else if (L2 < L1 && L2 == H){
+                    T = L2;
+                    L2 = T + random.nextInt(90);
+
+                    System.out.println("dombal e");
+                    if(serverIsAvailable){
+                        work = random.nextInt(40);
+                        H = T + work;
+                        printTable("L2 process",work);
+                        serverIsAvailable = false;
+                        continue;
+                    }else{
+                        Q.add(L2);
+                        printTable("L2 queued",0);
+                        continue;
+                    }                    
+                }else if (L1 < L2 && L1 == H){
+
+
+                    T = L1;
+                    L1 = T + random.nextInt(90);
+                    System.out.println("dombal a");
+
+                    if(serverIsAvailable){
+                        work = random.nextInt(40);
+                        H = T + work;
+                        printTable("L1 process",work);
+                        serverIsAvailable = false;
+                        continue;
+                    }else{
+                        Q.add(L1);
+                        printTable("L1 queued",0);
+                        continue;
+                    }
                 }
             }
         }

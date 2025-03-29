@@ -31,8 +31,10 @@ public class Simulation {
 
         int work = 0;
         
-        L1 = random.nextInt(90)+1;
-        L2 = random.nextInt(90)+1;
+        // L1 = random.nextInt(90)+1;
+        // L2 = random.nextInt(90)+1;
+        L1 = (int) getExponentialRandom(1.5);
+        L2 = (int) getExponentialRandom(4);
 
         H = 499;
         System.out.println("-------------------------------------------------------------------------------------------------------");
@@ -50,10 +52,10 @@ public class Simulation {
                 
                 if(L1 < L2 && L1 < H){
                     T = L1;
-                    L1 = T + random.nextInt(90);
+                    L1 = T + (int) getExponentialRandom(1.5);
 
                     if(serverIsAvailable){
-                        work = random.nextInt(40);
+                        work = (int) getNormalRandom(2, 0.3);
                         H = T + work;
                         printTable("L1 process",work);
                         serverIsAvailable = false;
@@ -66,10 +68,10 @@ public class Simulation {
                 }
                 else if (L2 < L1 && L2 < H) {
                     T = L2;
-                    L2 = T + random.nextInt(90);
+                    L2 = T + (int) getExponentialRandom(4);
 
                     if(serverIsAvailable){
-                        work = random.nextInt(40);
+                        work = (int) getNormalRandom(2, 0.3);
                         H = T + work;
                         printTable("L2 process",work);
                         serverIsAvailable = false;
@@ -86,13 +88,13 @@ public class Simulation {
                     // H = 501;
                     // System.out.println("DOMABAASSADSA");
                     if(Q.isEmpty()){
-                        printTable("Empty QUEUE", 0);
+                        System.out.println("Empty QUEUE");
                         if (L2 < L1) {
                             T = L2;
-                            L2 = T + random.nextInt(90);
+                            L2 = T + (int) getExponentialRandom(4);
 
                             if(serverIsAvailable){
-                                work = random.nextInt(40);
+                                work = (int) getNormalRandom(2, 0.3);
                                 H = T + work;
                                 printTable("L2 process",work);
                                 serverIsAvailable = false;
@@ -104,10 +106,10 @@ public class Simulation {
                             }
                         }else{
                             T = L1;
-                            L1 = T + random.nextInt(90);
+                            L1 = T + (int) getExponentialRandom(1.5);
         
                             if(serverIsAvailable){
-                                work = random.nextInt(40);
+                                work = (int) getNormalRandom(2, 0.3);
                                 H = T + work;
                                 printTable("L1 process",work);
                                 serverIsAvailable = false;
@@ -121,7 +123,7 @@ public class Simulation {
                     }else{
                         int temp = Q.pop();
                         // if(temp == L1){
-                            work = random.nextInt(50);
+                            work = (int) getNormalRandom(2, 0.3);
                             H = T + work;
                             printTable("Taken FROM QUEUE",work);
                             serverIsAvailable = false;
@@ -139,10 +141,10 @@ public class Simulation {
                     System.out.println("dombal");
                     // Thread.sleep(1000);
                     T = L2;
-                    L2 = T + random.nextInt(90);
+                    L2 = T + (int) getExponentialRandom(4);
 
                     if(serverIsAvailable){
-                        work = random.nextInt(40);
+                        work = (int) getNormalRandom(2, 0.3);
                         H = T + work;
                         printTable("EQUAL L2",work);
                         serverIsAvailable = false;
@@ -154,11 +156,11 @@ public class Simulation {
                     }                        
                 }else if (L2 < L1 && L2 == H){
                     T = L2;
-                    L2 = T + random.nextInt(90);
+                    L2 = T + (int) getExponentialRandom(4);
 
                     System.out.println("dombal e");
                     if(serverIsAvailable){
-                        work = random.nextInt(40);
+                        work = (int) getNormalRandom(2, 0.3);
                         H = T + work;
                         printTable("L2 process",work);
                         serverIsAvailable = false;
@@ -172,11 +174,11 @@ public class Simulation {
 
 
                     T = L1;
-                    L1 = T + random.nextInt(90);
+                    L1 = T + (int) getExponentialRandom(1.5);
                     System.out.println("dombal a");
 
                     if(serverIsAvailable){
-                        work = random.nextInt(40);
+                        work = (int) getNormalRandom(2, 0.3);
                         H = T + work;
                         printTable("L1 process",work);
                         serverIsAvailable = false;
@@ -201,7 +203,53 @@ public class Simulation {
         else
         System.out.printf("| - %s | Time - %d | | L1 - %d | | L2 - %d | | H - %d | | available - %b | | size - %d | | %s | -- %d\n",event,T,L1,L2,H,serverIsAvailable,Q.size(),Q,work);
         // System.out.printf("| %s | %d | | %d | | %d | | %d | | %b | | %d | | %s | -- %d\n",event,T,L1,L2,H,serverIsAvailable,Q.size(),Q,work);
+        System.out.println(getExponentialRandom(1.5));
+        System.out.println(getExponentialRandom(4));
+        System.out.println(getNormalRandom(2, 0.3));
+        System.out.println(getNormalRandom(3, 0.5));
+    }
+    /**
+     * Generates a random number following an exponential distribution.
+     * 
+     * @param lambda The rate parameter of the exponential distribution.
+     *               Higher values lead to smaller random numbers on average.
+     * @return A random number from the exponential distribution.
+     */
+    public double getExponentialRandom(double lambda) {
+        // Generate a random number between 0 and 1 (excluding 0)
+        double u = 0;
+        while (u == 0) {
+            u = random.nextDouble();  // Avoid u=0 since ln(0) is undefined
+        }
+        
+        // Apply exponential distribution formula: X = -ln(U)/λ
+        return  -Math.log(1-u) / lambda;
+    }
 
+    /**
+     * Generates a random number following a normal (Gaussian) distribution.
+     * 
+     * @param mean The mean (average) of the distribution
+     * @param stdDev The standard deviation of the distribution
+     * @return A random number from the normal distribution
+     */
+    public double getNormalRandom(double mean, double stdDev) {
+        // Box-Muller transform implementation
+        
+        // Generate two independent uniform random numbers between 0 and 1
+        // (excluding 0 for the first one)
+        double u1 = 0;
+        while (u1 == 0) {
+            u1 = random.nextDouble();
+        }
+        double u2 = random.nextDouble();
+        
+        // Apply Box-Muller transform to get standard normal distribution
+        // This generates a random number with mean 0 and standard deviation 1
+        int z0 = (int) Math.round(Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2));
+        
+        // Scale and shift to get the desired mean and standard deviation
+        return Math.max(1,mean + stdDev * z0);
     }
 
 }

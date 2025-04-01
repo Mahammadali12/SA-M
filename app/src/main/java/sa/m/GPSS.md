@@ -1,0 +1,14 @@
+GENERATE (Exponential(1,0,10));
+ASSIGN time,(Exponential(1,0,10));
+lbl2 QUEUE BUF;
+LINK LINE1,LIFO,lbl1;
+lbl1 SEIZE PRIBOR;
+DEPART BUF;
+ADVANCE P$time;
+RELEASE PRIBOR;
+UNLINK LINE1,lbl1,1;
+TERMINATE 0;
+
+GENERATE (Exponential(1,0,20));
+ASSIGN time,(Exponential(1,0,6));
+TRANSFER, lbl2;

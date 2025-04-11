@@ -43,7 +43,7 @@ public class Simulation {
         while (true) {
             System.out.println("--------------------------------------------------------------------------------------------------");
 
-            // Thread.sleep(1000);
+            Thread.sleep(1000);
             if( T >= 500 ){
                 break;
             }else{
@@ -193,7 +193,7 @@ public class Simulation {
         Iterator<Double> iterator = Q.iterator();
 
         int i = 0;
-        while (iterator.hasNext() && i <10) {
+        while (iterator.hasNext() && i <5) {
             Double element = iterator.next();
             sb.append(String.format("%.2f", element));
             i++;
@@ -208,6 +208,9 @@ public class Simulation {
         System.out.printf("| - %s | Time - %.2f | | L1 - %.2f | | L2 - -- | | H - %.2f | | available - %b | | size - %d | | %s | -- %.2f\n",event,T,L1,H,serverIsAvailable,Q.size(),queue,work);
         else if(event.contains("L2"))
         System.out.printf("| - %s | Time - %.2f | | L1 - -- | | L2 - %.2f | | H - %.2f | | available - %b | | size - %d | | %s | -- %.2f\n",event,T,L2,H,serverIsAvailable,Q.size(),queue,work);
+        else
+        System.out.printf("| - %s | Time - %.2f | | L1 - -- | | L2 - %.2f | | H - %.2f | | available - %b | | size - %d | | %s | -- %.2f\n",event,T,L2,H,serverIsAvailable,Q.size(),queue,work);
+
         // // System.out.printf("| %s | %d | | -- | | %d | | %d | | %b | | %d | | %s | -- %d\n",event,T,L2,H,serverIsAvailable,Q.size(),Q,work);
 
         // else

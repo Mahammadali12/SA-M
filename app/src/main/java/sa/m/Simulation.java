@@ -12,6 +12,10 @@ public class Simulation {
 
     boolean serverIsAvailable = true;
 
+    double totalIdleTime = 0.0;
+    double idleStartTime = -1;
+    final double simulationEndTime = 500;
+
     double L1, L2;
 
     // Queue<Integer> Q;
@@ -43,148 +47,169 @@ public class Simulation {
         while (true) {
             System.out.println("--------------------------------------------------------------------------------------------------");
 
-            Thread.sleep(1000);
-            if( T >= 500 ){
-                break;
-            }else{
-                
-                if(L1 < L2 && L1 < H){
-                    T = L1;
-                    L1 = T +  getExponentialRandom(1.5);
-
-                    if(serverIsAvailable){
-                        work = nextNormal(2, 0.3);
-                        H = T + work;
-                        printTable("L1 process",work);
-                        serverIsAvailable = false;
-                        continue;
-                    }else{
-                        Q.add(L1);
-                        printTable("L1 queued",0);
-                        continue;
-                    }
+            // Thread.sleep(1000);
+            if( T >= simulationEndTime ){
+                if (idleStartTime != -1) {
+                    totalIdleTime = totalIdleTime + (simulationEndTime - idleStartTime);
                 }
-                else if (L2 < L1 && L2 < H) {
-                    T = L2;
-                    L2 = T +  getExponentialRandom(4);
+                break;
+            }
+            
+            
+            if(L1 < L2 && L1 < H){
+                T = L1;
+                L1 = T +  getExponentialRandom(1.5);
 
-                    if(serverIsAvailable){
-                        work = nextNormal(2, 0.3);
-                        H = T + work;
-                        printTable("L2 process",work);
-                        serverIsAvailable = false;
-                        continue;
-                    }else{
-                        Q.add(L2);
-                        printTable("L2 queued",0);
-                        continue;
+                if(serverIsAvailable){
+                    if (idleStartTime != -1) {
+                        totalIdleTime += (T - idleStartTime);
+                        idleStartTime = -1;
                     }
-                }else if (H < L2 && H < L1){
-
-                    T = H;
-                    serverIsAvailable = true;
-                    // H = 501;
-                    if(Q.isEmpty()){
-                        System.out.println("Empty QUEUE");
-                        if (L2 < L1) {
-                            T = L2;
-                            L2 = T + getExponentialRandom(4);
-
-                            if(serverIsAvailable){
-                                work = nextNormal(2, 0.3);
-                                H = T + work;
-                                printTable("L2 process",work);
-                                serverIsAvailable = false;
-                                continue;
-                            }else{
-                                Q.add(L2);
-                                printTable("L2 queued",0);
-                                continue;
-                            }
-                        }else{
-                            T = L1;
-                            L1 = T + getExponentialRandom(1.5);
-        
-                            if(serverIsAvailable){
-                                work = nextNormal(2, 0.3);
-                                H = T + work;
-                                printTable("L1 process",work);
-                                serverIsAvailable = false;
-                                continue;
-                            }else{
-                                Q.add(L1);
-                                printTable("L1 queued",0);
-                                continue;
-                            }          
-                        }
-                    }else{
-                        double temp = Q.pop();
-                        // if(temp == L1){
-                            work = nextNormal(2, 0.3);
-                            H = T + work;
-                            printTable("Taken FROM QUEUE",work);
-                            serverIsAvailable = false;
-                            continue;
-                        // }else if (temp == L2){
-                        //     work = random.nextInt(55);
-                        //     H = T + work;
-                        //     serverIsAvailable = false;
-                        //     printTable("L2 Taken FROM QUEUE ",work);
-                        //     continue;
-                        // }
-                    }
-                }else if (L2 < H && L1 < H && L1==L2){
-
-                    // Thread.sleep(1000);
-                    T = L2;
-                    L2 = T + getExponentialRandom(4);
-
-                    if(serverIsAvailable){
-                        work = nextNormal(2, 0.3);
-                        H = T + work;
-                        printTable("EQUAL L2",work);
-                        serverIsAvailable = false;
-                        continue;
-                    }else{
-                        Q.add(L2);
-                        printTable("EQUAL L2",0);
-                        continue;
-                    }                        
-                }else if (L2 < L1 && L2 == H){
-                    T = L2;
-                    L2 = T + getExponentialRandom(4);
-
-                    if(serverIsAvailable){
-                        work = nextNormal(2, 0.3);
-                        H = T + work;
-                        printTable("L2 process",work);
-                        serverIsAvailable = false;
-                        continue;
-                    }else{
-                        Q.add(L2);
-                        printTable("L2 queued",0);
-                        continue;
-                    }                    
-                }else if (L1 < L2 && L1 == H){
-
-
-                    T = L1;
-                    L1 = T + getExponentialRandom(1.5);
-
-                    if(serverIsAvailable){
-                        work = nextNormal(2, 0.3);
-                        H = T + work;
-                        printTable("L1 process",work);
-                        serverIsAvailable = false;
-                        continue;
-                    }else{
-                        Q.add(L1);
-                        printTable("L1 queued",0);
-                        continue;
-                    }
+                    work = nextNormal(2, 0.3);
+                    H = T + work;
+                    printTable("L1 process",work);
+                    serverIsAvailable = false;
+                    continue;
+                }else{
+                    Q.add(L1);
+                    printTable("L1 queued",0);
+                    continue;
                 }
             }
+            else if (L2 < L1 && L2 < H) {
+                T = L2;
+                L2 = T +  getExponentialRandom(4);
+                if(serverIsAvailable){
+                    if (idleStartTime != -1) {
+                        totalIdleTime += (T-idleStartTime);
+                        idleStartTime = -1;
+                    }
+
+                    work = nextNormal(2, 0.3);
+                    H = T + work;
+                    printTable("L2 process",work);
+                    serverIsAvailable = false;
+                    continue;
+                }else{
+                    Q.add(L2);
+                    printTable("L2 queued",0);
+                    continue;
+                }
+            }else if (H < L2 && H < L1){
+                T = H;
+                serverIsAvailable = true;
+                // H = 501;
+                if(Q.isEmpty()){
+                    System.out.println("Empty QUEUE");
+                    if (L2 < L1) {
+                        T = L2;
+                        L2 = T + getExponentialRandom(4);
+                        if(serverIsAvailable){
+                            work = nextNormal(2, 0.3);
+                            H = T + work;
+                            printTable("L2 process",work);
+                            serverIsAvailable = false;
+                            continue;
+                        }else{
+                            Q.add(L2);
+                            printTable("L2 queued",0);
+                            continue;
+                        }
+                    }else{
+                        T = L1;
+                        L1 = T + getExponentialRandom(1.5);
+    
+                        if(serverIsAvailable){
+                            work = nextNormal(2, 0.3);
+                            H = T + work;
+                            printTable("L1 process",work);
+                            serverIsAvailable = false;
+                            continue;
+                        }else{
+                            Q.add(L1);
+                            printTable("L1 queued",0);
+                            continue;
+                        }          
+                    }
+                }else{
+                    double temp = Q.pop();
+                    // if(temp == L1){
+                        work = nextNormal(2, 0.3);
+                        H = T + work;
+                        printTable("Taken FROM QUEUE",work);
+                        serverIsAvailable = false;
+                        continue;
+                    // }else if (temp == L2){
+                    //     work = random.nextInt(55);
+                    //     H = T + work;
+                    //     serverIsAvailable = false;
+                    //     printTable("L2 Taken FROM QUEUE ",work);
+                    //     continue;
+                    // }
+                }
+            }else if (L2 < H && L1 < H && L1==L2){
+                // Thread.sleep(1000);
+                T = L2;
+                L2 = T + getExponentialRandom(4);
+                if(serverIsAvailable){
+                    if (idleStartTime != -1) {
+                        totalIdleTime += (T - idleStartTime);
+                        idleStartTime = -1;
+                    }
+
+                    work = nextNormal(2, 0.3);
+                    H = T + work;
+                    printTable("EQUAL L2",work);
+                    serverIsAvailable = false;
+                    continue;
+                }else{
+                    Q.add(L2);
+                    printTable("EQUAL L2",0);
+                    continue;
+                }                        
+            }else if (L2 < L1 && L2 == H){
+                T = L2;
+                L2 = T + getExponentialRandom(4);
+                if(serverIsAvailable){
+                    if (idleStartTime != -1) {
+                        totalIdleTime += (T-idleStartTime);
+                        idleStartTime = -1;
+                    }
+                    work = nextNormal(2, 0.3);
+                    H = T + work;
+                    printTable("L2 process",work);
+                    serverIsAvailable = false;
+                    continue;
+                }else{
+                    Q.add(L2);
+                    printTable("L2 queued",0);
+                    continue;
+                }                    
+            }else if (L1 < L2 && L1 == H){
+                T = L1;
+                L1 = T + getExponentialRandom(1.5);
+                if(serverIsAvailable){
+                    if (idleStartTime != -1) {
+                        totalIdleTime += (T-idleStartTime);
+                        idleStartTime = -1;
+                    }
+                    work = nextNormal(2, 0.3);
+                    H = T + work;
+                    printTable("L1 process",work);
+                    serverIsAvailable = false;
+                    continue;
+                }else{
+                    Q.add(L1);
+                    printTable("L1 queued",0);
+                    continue;
+                }
+            }
+            
         }
+
+        double downtimeFactor = totalIdleTime / simulationEndTime;
+        System.out.printf("Total Idle Time: %.4f minutes\n", totalIdleTime);
+        System.out.printf("Downtime Factor: %.4f\n", downtimeFactor);
     }
 
     public void printTable(String event, double work){
@@ -294,7 +319,7 @@ public class Simulation {
 
         // Calculate the two standard normal random variables
         double z0 = R * Math.cos(theta);
-        double z1 = R * Math.sin(theta);
+        // double z1 = R * Math.sin(theta);
 
         // Cache z1 for the next call and return z0
         // this.cachedValue = z1;

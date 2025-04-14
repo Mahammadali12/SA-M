@@ -1,5 +1,7 @@
 package sa.m;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Stack;
@@ -7,7 +9,9 @@ import java.util.Stack;
 public class Simulation {
 
     Random random;
-    
+
+    PrintWriter csvWriter;
+
     double H, T;
 
     boolean serverIsAvailable = true;
@@ -31,9 +35,18 @@ public class Simulation {
     }
 
     public void  runSimulation() throws InterruptedException{
+
         random = new Random();
         // Q = new PriorityQueue<>();
         Q = new Stack<>();
+
+        try {
+            csvWriter = new PrintWriter("simulation_events.csv");
+            writeCSVHeader();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
 
         double work = 0;
         
@@ -79,11 +92,13 @@ public class Simulation {
                     work = nextNormal(2, 0.3);
                     H = T + work;
                     printTable("L1 process",work);
+                    logEvent("L1 Process", work);
                     serverIsAvailable = false;
                     continue;
                 }else{
                     Q.add(L1);
                     printTable("L1 queued",0);
+                    logEvent("L1 queued",0);
                     continue;
                 }
             }
@@ -102,11 +117,13 @@ public class Simulation {
                     work = nextNormal(2, 0.3);
                     H = T + work;
                     printTable("L2 process",work);
+                    logEvent("L2 process",work);
                     serverIsAvailable = false;
                     continue;
                 }else{
                     Q.add(L2);
                     printTable("L2 queued",0);
+                    logEvent("L2 queued",0);
                     continue;
                 }
             }else if (H < L2 && H < L1){
@@ -127,11 +144,13 @@ public class Simulation {
                             work = nextNormal(2, 0.3);
                             H = T + work;
                             printTable("L2 process",work);
+                            logEvent("L2 process",work);
                             serverIsAvailable = false;
                             continue;
                         }else{
                             Q.add(L2);
                             printTable("L2 queued",0);
+                            logEvent("L2 queued",0);
                             continue;
                         }
                     }else{
@@ -142,6 +161,8 @@ public class Simulation {
                             work = nextNormal(2, 0.3);
                             H = T + work;
                             printTable("L1 process",work);
+                            logEvent("L1 process",work);
+
                             serverIsAvailable = false;
                             lastEventTime = T;
 
@@ -149,6 +170,7 @@ public class Simulation {
                         }else{
                             Q.add(L1);
                             printTable("L1 queued",0);
+                            logEvent("L1 queued",0);
                             continue;
                         }          
 
@@ -160,6 +182,7 @@ public class Simulation {
                         H = T + work;
                         lastEventTime = T;
                         printTable("Taken FROM QUEUE",work);
+                        logEvent("Taken FROM QUEUE",work);
                         serverIsAvailable = false;
                         continue;
                     // }else if (temp == L2){
@@ -185,11 +208,13 @@ public class Simulation {
                     work = nextNormal(2, 0.3);
                     H = T + work;
                     printTable("EQUAL L2",work);
+                    logEvent("EQUAL L2",work);
                     serverIsAvailable = false;
                     continue;
                 }else{
                     Q.add(L2);
                     printTable("EQUAL L2",0);
+                    logEvent("EQUAL L2",0);
                     continue;
                 }                        
             }else if (L2 < L1 && L2 == H){
@@ -205,11 +230,13 @@ public class Simulation {
                     work = nextNormal(2, 0.3);
                     H = T + work;
                     printTable("L2 process",work);
+                    logEvent("L2 process",work);
                     serverIsAvailable = false;
                     continue;
                 }else{
                     Q.add(L2);
                     printTable("L2 queued",0);
+                    logEvent("L2 queued",0);
                     continue;
                 }                    
             }else if (L1 < L2 && L1 == H){
@@ -225,11 +252,13 @@ public class Simulation {
                     work = nextNormal(2, 0.3);
                     H = T + work;
                     printTable("L1 process",work);
+                    logEvent("L1 process",work);
                     serverIsAvailable = false;
                     continue;
                 }else{
                     Q.add(L1);
                     printTable("L1 queued",0);
+                    logEvent("L1 queued",0);
                     continue;
                 }
             }
@@ -245,6 +274,49 @@ public class Simulation {
         double averageQueueLength = areaQueue/ simulationEndTime;
         System.out.printf("Total Queue Area: %.2f\n", areaQueue);
         System.out.printf("Average Queue Length: %.2f\n", averageQueueLength);
+
+        csvWriter.printf("Final Stats, , , , , , , ,\n");
+        csvWriter.printf("Total Idle Time,%.4f\n", totalIdleTime);
+        csvWriter.printf("Downtime Factor,%.4f\n", downtimeFactor);
+        csvWriter.printf("Total Queue Area,%.2f\n", areaQueue);
+        csvWriter.printf("Average Queue Length,%.2f\n", averageQueueLength);
+
+        csvWriter.close();
+    }
+
+
+    public void writeCSVHeader(){
+        csvWriter.printf("Event,Time,L1,L2,H,Server Available,Queue Size,Process Time,Queue Contents\n");
+    }
+
+
+    public void logEvent(String event, double work) {
+        StringBuilder sb = new StringBuilder();
+        // Prepare CSV line (fields delimited by commas)
+        sb.append(event).append(",");
+        sb.append(String.format("%.2f", T)).append(",");
+        sb.append(String.format("%.2f", L1)).append(",");
+        sb.append(String.format("%.2f", L2)).append(",");
+        sb.append(String.format("%.2f", H)).append(",");
+        sb.append(serverIsAvailable).append(",");
+        sb.append(Q.size()).append(",");
+        sb.append(String.format("%.2f", work)).append(",");
+
+        // Append up to first 5 elements from the queue as a string
+        StringBuilder queueContents = new StringBuilder();
+        Iterator<Double> iterator = Q.iterator();
+        int i = 0;
+        while (iterator.hasNext() && i < 5) {
+            queueContents.append(String.format("%.2f", iterator.next()));
+            i++;
+            if (iterator.hasNext() && i < 5) {
+                queueContents.append(" | ");
+            }
+        }
+        sb.append("\"").append(queueContents.toString()).append("\"");
+        
+        // Write the line into the CSV
+        csvWriter.println(sb.toString());
     }
 
     public void printTable(String event, double work){

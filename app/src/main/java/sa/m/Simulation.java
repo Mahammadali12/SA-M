@@ -12,6 +12,9 @@ public class Simulation {
 
     boolean serverIsAvailable = true;
 
+    double areaQueue = 0.0;
+    double lastEventTime = 0.0;
+
     double totalIdleTime = 0.0;
     double idleStartTime = -1;
     final double simulationEndTime = 500;
@@ -45,20 +48,28 @@ public class Simulation {
         System.out.println("-------------------------------------------------------------------------------------------------------");
         printTable("Start",0);
         while (true) {
+            
             System.out.println("--------------------------------------------------------------------------------------------------");
 
             // Thread.sleep(1000);
             if( T >= simulationEndTime ){
+
+                areaQueue += Q.size() * (simulationEndTime - lastEventTime);
+
                 if (idleStartTime != -1) {
                     totalIdleTime = totalIdleTime + (simulationEndTime - idleStartTime);
                 }
                 break;
             }
             
+            double previousT = T;
             
             if(L1 < L2 && L1 < H){
                 T = L1;
                 L1 = T +  getExponentialRandom(1.5);
+
+                areaQueue += Q.size() * (T - previousT);
+                
 
                 if(serverIsAvailable){
                     if (idleStartTime != -1) {
@@ -79,6 +90,9 @@ public class Simulation {
             else if (L2 < L1 && L2 < H) {
                 T = L2;
                 L2 = T +  getExponentialRandom(4);
+
+                areaQueue += Q.size() * (T - previousT);
+
                 if(serverIsAvailable){
                     if (idleStartTime != -1) {
                         totalIdleTime += (T-idleStartTime);
@@ -97,10 +111,15 @@ public class Simulation {
                 }
             }else if (H < L2 && H < L1){
                 T = H;
+                areaQueue += Q.size() * (T - previousT);
+
                 serverIsAvailable = true;
-                // H = 501;
+
                 if(Q.isEmpty()){
                     System.out.println("Empty QUEUE");
+                    if (idleStartTime == -1) {
+                        idleStartTime = T;
+                    }
                     if (L2 < L1) {
                         T = L2;
                         L2 = T + getExponentialRandom(4);
@@ -124,18 +143,22 @@ public class Simulation {
                             H = T + work;
                             printTable("L1 process",work);
                             serverIsAvailable = false;
+                            lastEventTime = T;
+
                             continue;
                         }else{
                             Q.add(L1);
                             printTable("L1 queued",0);
                             continue;
                         }          
+
                     }
                 }else{
                     double temp = Q.pop();
                     // if(temp == L1){
                         work = nextNormal(2, 0.3);
                         H = T + work;
+                        lastEventTime = T;
                         printTable("Taken FROM QUEUE",work);
                         serverIsAvailable = false;
                         continue;
@@ -151,6 +174,8 @@ public class Simulation {
                 // Thread.sleep(1000);
                 T = L2;
                 L2 = T + getExponentialRandom(4);
+                areaQueue += Q.size() * (T - previousT);
+
                 if(serverIsAvailable){
                     if (idleStartTime != -1) {
                         totalIdleTime += (T - idleStartTime);
@@ -170,6 +195,8 @@ public class Simulation {
             }else if (L2 < L1 && L2 == H){
                 T = L2;
                 L2 = T + getExponentialRandom(4);
+                areaQueue += Q.size() * (T - previousT);
+
                 if(serverIsAvailable){
                     if (idleStartTime != -1) {
                         totalIdleTime += (T-idleStartTime);
@@ -188,6 +215,8 @@ public class Simulation {
             }else if (L1 < L2 && L1 == H){
                 T = L1;
                 L1 = T + getExponentialRandom(1.5);
+                areaQueue += Q.size() * (T - previousT);
+
                 if(serverIsAvailable){
                     if (idleStartTime != -1) {
                         totalIdleTime += (T-idleStartTime);
@@ -204,12 +233,18 @@ public class Simulation {
                     continue;
                 }
             }
+
+            lastEventTime = T;
             
         }
 
         double downtimeFactor = totalIdleTime / simulationEndTime;
         System.out.printf("Total Idle Time: %.4f minutes\n", totalIdleTime);
         System.out.printf("Downtime Factor: %.4f\n", downtimeFactor);
+
+        double averageQueueLength = areaQueue/ simulationEndTime;
+        System.out.printf("Total Queue Area: %.2f\n", areaQueue);
+        System.out.printf("Average Queue Length: %.2f\n", averageQueueLength);
     }
 
     public void printTable(String event, double work){

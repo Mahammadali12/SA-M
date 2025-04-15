@@ -1,0 +1,103 @@
+# Hypothesis Tests for an Exponential Distribution (rate = 1.5)
+
+# 1) Load your sample data
+#    Make sure your CSV file and column names match your actual data file.
+#    For demonstration, we'll assume a file named "my_data.csv" with a column "sample_col".
+# setwd("path/to/your/csv")  # If you need to set your working directory
+data <- read.csv("simulation_events_nums.csv", header = TRUE)
+sample_data <- data$exp2  # Replace "sample_col" with your actual column name
+
+# 2) Set the theoretical rate parameter for the exponential distribution
+lambda <- 4
+
+sample_data <- jitter(sample_data, factor = 1e-6)
+
+# 3) Kolmogorov–Smirnov Test
+#    H0: The sample follows an exponential distribution with rate = 1.5
+#    Ha: The sample does NOT follow that distribution
+#    Significance level alpha = 0.05
+
+ks_result <- ks.test(sample_data, "pexp", rate = lambda)
+
+cat("====================================================\n")
+cat("Kolmogorov–Smirnov Test for Exponential Distribution\n")
+cat("====================================================\n")
+cat("Null hypothesis (H0): The sample follows Exponential(rate=", lambda, ")\n")
+cat("Alternative (Ha): The sample distribution is significantly different.\n")
+cat("Significance level (alpha) = 0.05\n\n")
+
+cat("K–S test statistic:", ks_result$statistic, "\n")
+cat("p-value:", ks_result$p.value, "\n\n")
+
+if (ks_result$p.value < 0.05) {
+  cat("Conclusion:\n")
+  cat("p-value < alpha => Reject H0.\n")
+  cat("The sample does NOT follow an exponential distribution with rate =", lambda, "at the 5% level.\n\n")
+} else {
+  cat("Conclusion:\n")
+  cat("p-value >= alpha => Fail to reject H0.\n")
+  cat("No significant difference found; the sample appears to follow Exponential(rate =", lambda, ") at the 5% level.\n\n")
+}
+
+# 4) Chi-square Test
+#    H0: There is no significant difference between observed frequencies and expected 
+#        frequencies => The sample follows Exp(rate=1.5)
+#    Ha: There is a significant difference.
+#    Significance level alpha = 0.05
+
+# --- Step A: Bin the data into intervals so we can get observed vs. expected counts.
+# Choose your number of bins:
+num_bins <- 10
+
+# Get breaks by quantiles to ensure the bins have relatively balanced frequencies
+breaks_vec <- quantile(sample_data, probs = seq(0, 1, length.out = num_bins + 1))
+
+# Get observed frequencies in each bin
+obs_freq <- hist(sample_data, breaks = breaks_vec, plot = FALSE)$counts
+n <- length(sample_data)
+
+# Compute expected frequencies from the theoretical exponential distribution
+expected_freq <- numeric(num_bins)
+for (i in 1:num_bins) {
+  p_lower <- pexp(breaks_vec[i], rate = lambda)     # CDF at lower bound
+  p_upper <- pexp(breaks_vec[i+1], rate = lambda)   # CDF at upper bound
+  expected_freq[i] <- n * (p_upper - p_lower)
+}
+
+# The probabilities must sum to 1 for chisq.test(..., p = ...)
+# so we pass p = expected_freq/sum(expected_freq).
+# Alternatively, call chisq.test(x=obs_freq, y=expected_freq) for a one-sample test.
+cat("========================================\n")
+cat("Chi-square Test for Exponential\n")
+cat("========================================\n")
+cat("Null hypothesis (H0): No difference between observed & expected frequencies,\n")
+cat("=> Sample follows Exp(rate=", lambda, ")\n")
+cat("Alternative (Ha): A significant difference exists.\n")
+cat("Significance level (alpha) = 0.05\n\n")
+
+# Make sure none of the expected frequencies are too small (rule of thumb >= 5 in each bin).
+# If some are too small, consider combining bins or using fewer bins.
+cat("Expected frequencies: ", expected_freq, "\n\n")
+
+if (any(expected_freq < 5)) {
+  cat("Warning: Some expected frequencies are < 5. Consider combining bins.\n")
+}
+p_expected <- expected_freq / sum(expected_freq)
+chisq_result <- chisq.test(x = obs_freq, p = p_expected)
+
+cat("Chi-square test statistic:", chisq_result$statistic, "\n")
+cat("Degrees of freedom:", chisq_result$parameter, "\n")
+cat("p-value:", chisq_result$p.value, "\n\n")
+
+if (chisq_result$p.value < 0.05) {
+  cat("Conclusion:\n")
+  cat("p-value < alpha => Reject H0.\n")
+  cat("The sample distribution does not match Exp(rate =", lambda, ") at the 5% level.\n\n")
+} else {
+  cat("Conclusion:\n")
+  cat("p-value >= alpha => Fail to reject H0.\n")
+  cat("The sample distribution is not significantly different from Exp(rate =", lambda, ") at the 5% level.\n\n")
+}
+
+hist(sample_data, breaks = 50, probability = TRUE, main = "Histogram vs Theoretical Density")
+curve(dexp(x, rate = lambda), col = "red", lwd = 2, add = TRUE)

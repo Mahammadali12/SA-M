@@ -41,7 +41,7 @@ public class Simulation {
         Q = new Stack<>();
 
         try {
-            csvWriter = new PrintWriter("simulation_events.csv");
+            csvWriter = new PrintWriter("simulation_events_nums.csv");
             writeCSVHeader();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -61,6 +61,8 @@ public class Simulation {
         System.out.println("-------------------------------------------------------------------------------------------------------");
         printTable("Start",0);
         while (true) {
+
+            logEvent(null, work);
             
             System.out.println("--------------------------------------------------------------------------------------------------");
 
@@ -275,32 +277,37 @@ public class Simulation {
         System.out.printf("Total Queue Area: %.2f\n", areaQueue);
         System.out.printf("Average Queue Length: %.2f\n", averageQueueLength);
 
-        csvWriter.printf("Final Stats, , , , , , , ,\n");
-        csvWriter.printf("Total Idle Time,%.4f\n", totalIdleTime);
-        csvWriter.printf("Downtime Factor,%.4f\n", downtimeFactor);
-        csvWriter.printf("Total Queue Area,%.2f\n", areaQueue);
-        csvWriter.printf("Average Queue Length,%.2f\n", averageQueueLength);
+        // csvWriter.printf("Final Stats, , , , , , , ,\n");
+        // csvWriter.printf("Total Idle Time,%.4f\n", totalIdleTime);
+        // csvWriter.printf("Downtime Factor,%.4f\n", downtimeFactor);
+        // csvWriter.printf("Total Queue Area,%.2f\n", areaQueue);
+        // csvWriter.printf("Average Queue Length,%.2f\n", averageQueueLength);
 
         csvWriter.close();
     }
 
 
     public void writeCSVHeader(){
-        csvWriter.printf("Event,Time,L1,L2,H,Server Available,Queue Size,Process Time,Queue Contents\n");
+        // csvWriter.printf("Event,Time,L1,L2,H,Server Available,Queue Size,Process Time,Queue Contents\n");
+        csvWriter.printf("L1,L2,H,Process Time\n");
     }
 
 
     public void logEvent(String event, double work) {
         StringBuilder sb = new StringBuilder();
         // Prepare CSV line (fields delimited by commas)
-        sb.append(event).append(",");
-        sb.append(String.format("%.2f", T)).append(",");
-        sb.append(String.format("%.2f", L1)).append(",");
-        sb.append(String.format("%.2f", L2)).append(",");
-        sb.append(String.format("%.2f", H)).append(",");
-        sb.append(serverIsAvailable).append(",");
-        sb.append(Q.size()).append(",");
-        sb.append(String.format("%.2f", work)).append(",");
+        // sb.append(event).append(",");
+        // sb.append(String.format("%.2f", T)).append(",");
+        sb.append(String.format("%.5f", getExponentialRandom(1.5))).append(",");
+        sb.append(String.format("%.5f", getExponentialRandom(4))).append(",");
+        // sb.append(String.format("%.2f", nextNormal(2, 0.3))).append(",");
+        sb.append(String.format("%.5f", generateNormal(2, 0.3))).append(",");
+        sb.append(String.format("%.5f", generateNormal(3, 0.5)));
+        // sb.append(String.format("%.2f", nextNormal(3, 0.5))).append(",");
+        // sb.append(String.format("%.2f", nextNormal(3, 0.5)));
+        // sb.append(serverIsAvailable).append(",");
+        // sb.append(Q.size()).append(",");
+        // sb.append(String.format("%.2f", work)).append(",");
 
         // Append up to first 5 elements from the queue as a string
         StringBuilder queueContents = new StringBuilder();
@@ -313,7 +320,7 @@ public class Simulation {
                 queueContents.append(" | ");
             }
         }
-        sb.append("\"").append(queueContents.toString()).append("\"");
+        // sb.append("\"").append(queueContents.toString()).append("\"");
         
         // Write the line into the CSV
         csvWriter.println(sb.toString());
@@ -364,7 +371,7 @@ public class Simulation {
         // Generate a random number between 0 and 1 (excluding 0)
         double u = 0;
         while (u == 0) {
-            u = random.nextDouble();  // Avoid u=0 since ln(0) is undefined
+            u = Math.random();  // Avoid u=0 since ln(0) is undefined
         }
         
         // Apply exponential distribution formula: X = -ln(U)/λ
@@ -433,5 +440,36 @@ public class Simulation {
         // this.hasCachedValue = true;
         return z0;
     }
+
+    /**
+ * Generates a random number following a normal (Gaussian) distribution using
+ * the Box–Muller transformation.
+ *
+ * @param mean   The mean (expected value) of the normal distribution.
+ * @param stdDev The standard deviation of the normal distribution.
+ * @return A random number from N(mean, stdDev^2).
+ */
+public double generateNormal(double mean, double stdDev) {
+    // If standard deviation is 0, return the mean.
+    if (stdDev == 0.0) {
+        return mean;
+    }
+
+    // Generate two independent uniformly distributed numbers in (0, 1)
+    double u1, u2;
+    do {
+        u1 = random.nextDouble();
+    } while (u1 == 0.0);  // Ensure non-zero to avoid log(0).
+    u2 = random.nextDouble();
+
+    // Box-Muller transform:
+    // Z0 = sqrt(-2 * ln(u1)) * cos(2 * PI * u2)
+    double z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+
+    // Transform to N(mean, stdDev^2)
+    return mean + stdDev * z0;
+}
+
+
 
 }

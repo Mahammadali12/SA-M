@@ -91,7 +91,7 @@ public class Simulation {
                         totalIdleTime += (T - idleStartTime);
                         idleStartTime = -1;
                     }
-                    work = nextNormal(2, 0.3);
+                    work = generateNormal(2, 0.3);
                     H = T + work;
                     printTable("L1 process",work);
                     logEvent("L1 Process", work);
@@ -116,7 +116,7 @@ public class Simulation {
                         idleStartTime = -1;
                     }
 
-                    work = nextNormal(2, 0.3);
+                    work = generateNormal(2, 0.3);
                     H = T + work;
                     printTable("L2 process",work);
                     logEvent("L2 process",work);
@@ -143,7 +143,7 @@ public class Simulation {
                         T = L2;
                         L2 = T + getExponentialRandom(4);
                         if(serverIsAvailable){
-                            work = nextNormal(2, 0.3);
+                            work = generateNormal(2, 0.3);
                             H = T + work;
                             printTable("L2 process",work);
                             logEvent("L2 process",work);
@@ -160,7 +160,7 @@ public class Simulation {
                         L1 = T + getExponentialRandom(1.5);
     
                         if(serverIsAvailable){
-                            work = nextNormal(2, 0.3);
+                            work = generateNormal(2, 0.3);
                             H = T + work;
                             printTable("L1 process",work);
                             logEvent("L1 process",work);
@@ -180,7 +180,7 @@ public class Simulation {
                 }else{
                     double temp = Q.pop();
                     // if(temp == L1){
-                        work = nextNormal(2, 0.3);
+                        work = generateNormal(2, 0.3);
                         H = T + work;
                         lastEventTime = T;
                         printTable("Taken FROM QUEUE",work);
@@ -207,7 +207,7 @@ public class Simulation {
                         idleStartTime = -1;
                     }
 
-                    work = nextNormal(2, 0.3);
+                    work = generateNormal(2, 0.3);
                     H = T + work;
                     printTable("EQUAL L2",work);
                     logEvent("EQUAL L2",work);
@@ -229,7 +229,7 @@ public class Simulation {
                         totalIdleTime += (T-idleStartTime);
                         idleStartTime = -1;
                     }
-                    work = nextNormal(2, 0.3);
+                    work = generateNormal(2, 0.3);
                     H = T + work;
                     printTable("L2 process",work);
                     logEvent("L2 process",work);
@@ -251,7 +251,7 @@ public class Simulation {
                         totalIdleTime += (T-idleStartTime);
                         idleStartTime = -1;
                     }
-                    work = nextNormal(2, 0.3);
+                    work = generateNormal(2, 0.3);
                     H = T + work;
                     printTable("L1 process",work);
                     logEvent("L1 process",work);
@@ -270,8 +270,8 @@ public class Simulation {
         }
 
         double downtimeFactor = totalIdleTime / simulationEndTime;
-        System.out.printf("Total Idle Time: %.4f minutes\n", totalIdleTime);
-        System.out.printf("Downtime Factor: %.4f\n", downtimeFactor);
+        System.out.printf("Total Idle Time: %.7f minutes\n", totalIdleTime);
+        System.out.printf("Downtime Factor: %.7f\n", downtimeFactor);
 
         double averageQueueLength = areaQueue/ simulationEndTime;
         System.out.printf("Total Queue Area: %.2f\n", areaQueue);

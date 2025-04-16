@@ -1,24 +1,17 @@
-
 GENERATE (Exponential (1,0,0.71));
-
 ASSIGN proc_time,(Normal(1,2, 0.3))
 
 LBL QUEUE BUF; 
-
-SEIZE SERVER;occupying server
-
+SEIZE SERVER;
 DEPART BUF;
-
-ADVANCE P$proc_time; delay is read from attribute
-
-RELEASE SERVER
-TERMINATE 0; delete processed job, update counter
+ADVANCE P$proc_time; 
+RELEASE SERVERTERMINATE 0; 
 
 GENERATE (Exponential(1,0,0.25));
 ASSIGN proc_time,(Normal(1,2.5,0.5)) 
 TRANSFER ,LBL;
 
-GENERATE 500; stop timer
+GENERATE 500;
 TERMINATE 1
 
-START 1; automatic start (optional)
+START 1; 

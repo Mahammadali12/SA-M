@@ -142,6 +142,11 @@ public class Simulation {
                     if (L2 < L1) {
                         T = L2;
                         L2 = T + getExponentialRandom(4);
+
+                        if (idleStartTime == -1) {
+                            idleStartTime = T;
+                        }
+
                         if(serverIsAvailable){
                             work = generateNormal(2, 0.3);
                             H = T + work;
@@ -158,6 +163,10 @@ public class Simulation {
                     }else{
                         T = L1;
                         L1 = T + getExponentialRandom(1.5);
+                        
+                        if (idleStartTime == -1) {
+                            idleStartTime = T;
+                        }
     
                         if(serverIsAvailable){
                             work = generateNormal(2, 0.3);

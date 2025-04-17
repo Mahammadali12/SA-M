@@ -295,12 +295,10 @@ public class Simulation {
         csvWriter.close();
     }
 
-
     public void writeCSVHeader(){
         // csvWriter.printf("Event,Time,L1,L2,H,Server Available,Queue Size,Process Time,Queue Contents\n");
         csvWriter.printf("L1,L2,H,Process Time\n");
     }
-
 
     public void logEvent(String event, double work) {
         StringBuilder sb = new StringBuilder();
@@ -369,13 +367,7 @@ public class Simulation {
         // System.out.println(getNormalRandom(2, 0.3));
         // System.out.println(getNormalRandom(3, 0.5));
     }
-    /**
-     * Generates a random number following an exponential distribution.
-     * 
-     * @param lambda The rate parameter of the exponential distribution.
-     *               Higher values lead to smaller random numbers on average.
-     * @return A random number from the exponential distribution.
-     */
+    
     public double getExponentialRandom(double lambda) {
         // Generate a random number between 0 and 1 (excluding 0)
         double u = 0;
@@ -388,77 +380,7 @@ public class Simulation {
         // return  (-Math.log(1-u) / lambda)*10;
     }
 
-
-
-    /**
-     * Generates a random number following a normal (Gaussian) distribution.
-     * 
-     * @param mean The mean (average) of the distribution
-     * @param stdDev The standard deviation of the distribution
-     * @return A random number from the normal distribution
-     */
-    // public double getNormalRandom(double mean, double stdDev) {
-        
-    // }
-
-    public double nextNormal(double mean, double stdDev) {
-        if (stdDev < 0.0) {
-            throw new IllegalArgumentException("Standard deviation cannot be negative. Received: " + stdDev);
-        }
-        // If stdDev is 0, the distribution is just the mean value
-        if (stdDev == 0.0) {
-            return mean;
-        }
-
-        // Get a value from the standard normal distribution N(0, 1)
-        double standardNormalValue = nextStandardNormal();
-
-        // Transform the standard normal value to N(mean, stdDev)
-        // X = mean + stdDev * Z
-        return mean + stdDev * standardNormalValue;
-    }
-
-
-
-    private double nextStandardNormal() {
-        // If we have a cached value from the previous calculation, return it
-        // if (hasCachedValue) {
-        //     hasCachedValue = false; // Mark cache as consumed
-        //     return cachedValue;
-        // }
-
-        // --- Box-Muller transform ---
-        // Need two independent uniform random numbers in [0,1)
-        // We must ensure u1 is not 0 because log(0) is undefined.
-        double u1 = 0.0;
-        while (u1 == 0.0) {
-            u1 = Math.random(); // Generate number in [0.0, 1.0)
-        }
-        double u2 = Math.random(); // Generate number in [0.0, 1.0)
-
-        // Calculate intermediate values R and theta
-        double R = Math.sqrt(-2.0 * Math.log(u1)); // ln is natural log
-        double theta = 2.0 * Math.PI * u2;
-
-        // Calculate the two standard normal random variables
-        double z0 = R * Math.cos(theta);
-        // double z1 = R * Math.sin(theta);
-
-        // Cache z1 for the next call and return z0
-        // this.cachedValue = z1;
-        // this.hasCachedValue = true;
-        return z0;
-    }
-
-    /**
- * Generates a random number following a normal (Gaussian) distribution using
- * the Box–Muller transformation.
- *
- * @param mean   The mean (expected value) of the normal distribution.
- * @param stdDev The standard deviation of the normal distribution.
- * @return A random number from N(mean, stdDev^2).
- */
-public double generateNormal(double mean, double stdDev) {
+    public double generateNormal(double mean, double stdDev) {
     // If standard deviation is 0, return the mean.
     if (stdDev == 0.0) {
         return mean;
@@ -478,7 +400,5 @@ public double generateNormal(double mean, double stdDev) {
     // Transform to N(mean, stdDev^2)
     return mean + stdDev * z0;
 }
-
-
 
 }

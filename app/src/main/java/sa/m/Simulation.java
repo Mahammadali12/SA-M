@@ -277,10 +277,9 @@ public class Simulation {
             lastEventTime = T;
             
         }
-
         double downtimeFactor = totalIdleTime / simulationEndTime;
-        System.out.printf("Total Idle Time: %.7f minutes\n", totalIdleTime);
-        System.out.printf("Downtime Factor: %.7f\n", downtimeFactor);
+        System.out.printf("Total Idle Time: %.9f minutes\n", totalIdleTime);
+        System.out.printf("Downtime Factor: %.9f\n", downtimeFactor);
 
         double averageQueueLength = areaQueue/ simulationEndTime;
         System.out.printf("Total Queue Area: %.2f\n", areaQueue);
@@ -351,11 +350,11 @@ public class Simulation {
         String queue = sb.toString();
 
         if(event.contains("L1"))
-        System.out.printf("| - %s | Time - %.2f | | L1 - %.2f | | L2 - -- | | H - %.2f | | available - %b | | size - %d | | %s | -- %.2f\n",event,T,L1,H,serverIsAvailable,Q.size(),queue,work);
+        System.out.printf("| - %s | Time - %.2f | | L1 - %.2f | | L2 - -- | | H - %.2f | | available - %b | | size - %d | | [%s] | -- %.2f\n",event,T,L1,H,serverIsAvailable,Q.size(),queue,work);
         else if(event.contains("L2"))
-        System.out.printf("| - %s | Time - %.2f | | L1 - -- | | L2 - %.2f | | H - %.2f | | available - %b | | size - %d | | %s | -- %.2f\n",event,T,L2,H,serverIsAvailable,Q.size(),queue,work);
+        System.out.printf("| - %s | Time - %.2f | | L1 - -- | | L2 - %.2f | | H - %.2f | | available - %b | | size - %d | | [%s] | -- %.2f\n",event,T,L2,H,serverIsAvailable,Q.size(),queue,work);
         else
-        System.out.printf("| - %s | Time - %.2f | | L1 - -- | | L2 - %.2f | | H - %.2f | | available - %b | | size - %d | | %s | -- %.2f\n",event,T,L2,H,serverIsAvailable,Q.size(),queue,work);
+        System.out.printf("| - %s | Time - %.2f | | L1 - -- | | L2 - %.2f | | H - %.2f | | available - %b | | size - %d | | [%s] | -- %.2f\n",event,T,L2,H,serverIsAvailable,Q.size(),queue,work);
 
         // // System.out.printf("| %s | %d | | -- | | %d | | %d | | %b | | %d | | %s | -- %d\n",event,T,L2,H,serverIsAvailable,Q.size(),Q,work);
 
@@ -399,6 +398,6 @@ public class Simulation {
 
     // Transform to N(mean, stdDev^2)
     return mean + stdDev * z0;
-}
+    }
 
 }
